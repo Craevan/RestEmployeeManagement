@@ -3,6 +3,8 @@ package com.crevan.restemployeemanagement.controller;
 import com.crevan.restemployeemanagement.entity.Employee;
 import com.crevan.restemployeemanagement.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +21,34 @@ public class EmployeeRestController {
     }
 
     @GetMapping("/employees")
-    public List<Employee> getAllEmployees() {
-        return service.getAllEmployees();
+    public ResponseEntity<List<Employee>> getAllEmployees() {
+        final List<Employee> employees = service.getAllEmployees();
+        return employees != null && !employees.isEmpty()
+                ? new ResponseEntity<>(employees, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/employees/{id}")
-    public Employee getEmployee(@PathVariable final int id) {
-        return service.getEmployee(id);
+    public ResponseEntity<Employee> getEmployee(@PathVariable final int id) {
+        final Employee employee = service.getEmployee(id);
+        return employee != null
+                ? new ResponseEntity<>(employee, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/employees")
-    public Employee addEmployee(@RequestBody final Employee employee) {
-        service.saveEmployee(employee);
-        return employee;
+    public ResponseEntity<?> addEmployee(@RequestBody final Employee employee) {
+        return new ResponseEntity<>(service.saveEmployee(employee), HttpStatus.CREATED);
     }
 
     @PutMapping("/employees")
-    public Employee updateEmployee(@RequestBody final Employee employee) {
-        service.saveEmployee(employee);
-        return employee;
+    public ResponseEntity<?> updateEmployee(@RequestBody final Employee employee) {
+        return new ResponseEntity<>(service.saveEmployee(employee), HttpStatus.OK);
     }
 
     @DeleteMapping("/employees/{id}")
-    public String deleteEmployee(@PathVariable final int id) {
+    public ResponseEntity<?> deleteEmployee(@PathVariable final int id) {
         service.deleteEmployee(id);
-        return "Employee with ID = " + id + " was deleted";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
